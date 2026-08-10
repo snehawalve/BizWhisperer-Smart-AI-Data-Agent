@@ -61,6 +61,7 @@ The system is organized around three layers:
                   |  - PostgreSQL Database (Conversations/Logs)  |
                   +----------------------------------------------+
 
+
 ## Request and Data Flow
 
 When a user asks a question such as, "What were our Q2 sales, and does policy allow employee travel booking?", the workflow proceeds in a clear sequence:
