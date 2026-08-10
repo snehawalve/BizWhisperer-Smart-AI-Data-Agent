@@ -26,40 +26,37 @@ The system is organized around three layers:
 3. **Cloud services**
    - Supabase provides authentication and stores conversation history for secure user access.
 
-                  +----------------------------------------------+
-                  |                 USER BROWSER                 |
-                  |  - Streamlit UI (Forms, Chat, Sidebar)       |
-                  +----------------------+-----------------------+
-                                         |
-                       Sends Query /     |  Auth Requests /
-                       Fetches History   |  Database Sync
-                                         v
-+----------------------------------------+---------------------------------------+
-|                               LOCAL BACKEND SERVER                             |
-|                                                                                |
-|  [app.py] (Streamlit Frontend controller & session-state management)           |
-|     |                                                                          |
-|     +---> [agent.py] (LangChain Agent Executor with Gemini LLM Chat)            |
-|     |        |                                                                 |
-|     |        +---> [tools.py] (Runs search_company_documents via ChromaDB)     |
-|     |        |        |                                                        |
-|     |        |        +---> [vector_store/] (Local ChromaDB Vector Database)   |
-|     |        |                                                                 |
-|     |        +---> SQLDatabaseToolkit (Executes SELECT statements)              |
-|     |                 |                                                        |
-|     |                 +---> [enterprise.db] (Local SQLite Relational DB)       |
-|     |                                                                          |
-|     +---> [db_history.py] (Supabase Client operations helper)                  |
-+----------------------------------------+---------------------------------------+
-                                         |
-                                         | Secure REST API Calls
-                                         | (Auth Token / data payload)
-                                         v
-                  +----------------------------------------------+
-                  |                SUPABASE CLOUD                |
-                  |  - Auth Service (Manage Users & Sign-ins)    |
-                  |  - PostgreSQL Database (Conversations/Logs)  |
-                  +----------------------------------------------+
+```mermaid
+flowchart TD
+    subgraph Browser ["USER BROWSER"]
+        UI["Streamlit UI<br/>(Forms, Chat, Sidebar)"]
+    end
+
+    subgraph Server ["LOCAL BACKEND SERVER"]
+        APP["app.py<br/>(Streamlit Frontend controller & session-state management)"]
+        AGENT["agent.py<br/>(LangChain Agent Executor with Gemini LLM Chat)"]
+        TOOLS["tools.py<br/>(Runs search_company_documents via ChromaDB)"]
+        CHROMA[("vector_store/<br/>(Local ChromaDB Vector Database)")]
+        SQL_TOOL["SQLDatabaseToolkit<br/>(Executes SELECT statements)"]
+        SQLITE[("enterprise.db<br/>(Local SQLite Relational DB)")]
+        DB_HIST["db_history.py<br/>(Supabase Client operations helper)"]
+
+        APP --> AGENT
+        AGENT --> TOOLS
+        TOOLS --> CHROMA
+        AGENT --> SQL_TOOL
+        SQL_TOOL --> SQLITE
+        APP --> DB_HIST
+    end
+
+    subgraph Cloud ["SUPABASE CLOUD"]
+        AUTH["Auth Service (Manage Users & Sign-ins)"]
+        POSTGRES[("PostgreSQL Database (Conversations/Logs)")]
+    end
+
+    UI -->|"Sends Query / Fetches History<br/>Auth Requests / Database Sync"| Server
+    Server -->|"Secure REST API Calls<br/>(Auth Token / data payload)"| Cloud
+```
 
 
 ## Request and Data Flow
