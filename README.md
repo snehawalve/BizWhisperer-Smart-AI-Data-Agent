@@ -1,6 +1,6 @@
 # BizWhisperer
 
-BizWhisperer is an advanced AI Data Agent that connects structured business data with unstructured company documents. It combines relational SQL with retrieval-based document search and an LLM-driven workflow to help users get answers from both sources in one place.
+BizWhisperer is an advanced AI Data Agent that bridges the gap between structured databases (like SQLite containing tables of sales, customers, and expenses) and unstructured documents (like PDF policy files, Q2 strategy documents, or company manuals). It combines relational SQL with retrieval-based document search and an LLM-driven workflow to help users get answers from both sources in one place.
 
 ## Overview
 
