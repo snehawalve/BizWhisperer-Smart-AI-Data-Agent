@@ -28,23 +28,41 @@ The system is organized around three layers:
 
 ```mermaid
 flowchart TD
-    A["🌐 User Interface<br/>(Streamlit Browser App)"] 
-    
-    subgraph Server ["🖥️ Local Backend Server"]
-        B["⚙️ App Controller<br/>(app.py)"]
-        C["🤖 AI Agent<br/>(LangChain + Gemini)"]
-        D[("📚 Document Database<br/>(ChromaDB Vector Store)")]
-        E[("📊 Relational Database<br/>(SQLite Enterprise DB)")]
-        
-        B --> C
-        C -->|Search Docs| D
-        C -->|Query Data| E
+    %% Node Definitions
+    subgraph Layer1 ["1. FRONTEND LAYER"]
+        UI["Streamlit UI<br/>• User Prompts & Chat Interface<br/>• Authentication Views & Sidebar"]
     end
 
-    F["☁️ Supabase Cloud<br/>(User Auth & Chat History)"]
+    subgraph Layer2 ["2. APPLICATION CONTROLLER"]
+        APP["⚙️ Core Controller (app.py)<br/>• Session State Management<br/>• Routes requests to Agent or DB Sync"]
+    end
 
-    A <-->|"User Inputs / Responses"| B
-    B <-->|"Auth & Session Sync"| F
+    subgraph Layer3 ["3. AI & TOOLING ENGINE"]
+        AGENT["🤖 LangChain Agent Executor<br/>(Gemini LLM Chat)"]
+        TOOLS["📄 Document Search Tool<br/>(search_company_documents)"]
+        SQL_TOOL["Relational Query Tool<br/>(SQLDatabaseToolkit)"]
+        
+        VECTOR[("Vector Store<br/>(ChromaDB)")]
+        SQLITE[("Enterprise DB<br/>(SQLite)")]
+    end
+
+    subgraph Layer4 ["4. CLOUD & PERSISTENCE"]
+        DB_HIST["⚡ Auth & Sync Helper<br/>(db_history.py)"]
+        SUPA["☁️ Supabase Cloud Services<br/>• User Auth (Tokens)<br/>• Conversation Logs (PostgreSQL)"]
+    end
+
+    %% Data Flow & Execution Order
+    UI -->|"① Sends User Query & Credentials"| APP
+    APP -->|"② Validates Session & Forwards Prompt"| AGENT
+    
+    AGENT -->|"③ RAG Search (Unstructured Docs)"| TOOLS --> VECTOR
+    AGENT -->|"④ Text-to-SQL (Structured Data)"| SQL_TOOL --> SQLITE
+    
+    AGENT -->|"⑤ Formulates Final Answer"| APP
+    APP -->|"⑥ Renders UI Response"| UI
+    
+    APP -->|"⑦ Syncs Chat History & Auth Token"| DB_HIST
+    DB_HIST -->|"⑧ REST API Call"| SUPA
 ```
 
 ## Request and Data Flow
