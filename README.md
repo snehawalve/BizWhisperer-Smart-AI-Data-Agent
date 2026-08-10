@@ -28,36 +28,24 @@ The system is organized around three layers:
 
 ```mermaid
 flowchart TD
-    subgraph Browser ["USER BROWSER"]
-        UI["Streamlit UI<br/>"]
+    A["🌐 User Interface<br/>(Streamlit Browser App)"] 
+    
+    subgraph Server ["🖥️ Local Backend Server"]
+        B["⚙️ App Controller<br/>(app.py)"]
+        C["🤖 AI Agent<br/>(LangChain + Gemini)"]
+        D[("📚 Document Database<br/>(ChromaDB Vector Store)")]
+        E[("📊 Relational Database<br/>(SQLite Enterprise DB)")]
+        
+        B --> C
+        C -->|Search Docs| D
+        C -->|Query Data| E
     end
 
-    subgraph Server ["LOCAL BACKEND SERVER"]
-        APP["app.py<br/>(Streamlit Frontend controller & session-state management)"]
-        AGENT["agent.py<br/>(LangChain Agent Executor with Gemini LLM Chat)"]
-        TOOLS["tools.py<br/>(Runs search_company_documents via ChromaDB)"]
-        CHROMA[("vector_store/<br/>(Local ChromaDB Vector Database)")]
-        SQL_TOOL["SQLDatabaseToolkit<br/>(Executes SELECT statements)"]
-        SQLITE[("enterprise.db<br/>(Local SQLite Relational DB)")]
-        DB_HIST["db_history.py<br/>(Supabase Client operations helper)"]
+    F["☁️ Supabase Cloud<br/>(User Auth & Chat History)"]
 
-        APP --> AGENT
-        AGENT --> TOOLS
-        TOOLS --> CHROMA
-        AGENT --> SQL_TOOL
-        SQL_TOOL --> SQLITE
-        APP --> DB_HIST
-    end
-
-    subgraph Cloud ["SUPABASE CLOUD"]
-        AUTH["Auth Service (Manage Users & Sign-ins)"]
-        POSTGRES[("PostgreSQL Database (Conversations/Logs)")]
-    end
-
-    UI -->|"Sends Query / Fetches History<br/>Auth Requests / Database Sync"| Server
-    Server -->|"Secure REST API Calls<br/>(Auth Token / data payload)"| Cloud
+    A <-->|"User Inputs / Responses"| B
+    B <-->|"Auth & Session Sync"| F
 ```
-
 
 ## Request and Data Flow
 
