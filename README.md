@@ -27,7 +27,7 @@ The system is organized around three layers:
    - Supabase provides authentication and stores conversation history for secure user access.
 
                   +----------------------------------------------+
-                  |               USER BROWSER                   |
+                  |                 USER BROWSER                 |
                   |  - Streamlit UI (Forms, Chat, Sidebar)       |
                   +----------------------+-----------------------+
                                          |
@@ -35,7 +35,7 @@ The system is organized around three layers:
                        Fetches History   |  Database Sync
                                          v
 +----------------------------------------+---------------------------------------+
-|                             LOCAL BACKEND SERVER                               |
+|                               LOCAL BACKEND SERVER                             |
 |                                                                                |
 |  [app.py] (Streamlit Frontend controller & session-state management)           |
 |     |                                                                          |
@@ -49,14 +49,14 @@ The system is organized around three layers:
 |     |                 |                                                        |
 |     |                 +---> [enterprise.db] (Local SQLite Relational DB)       |
 |     |                                                                          |
-|     +---> [db_history.py] (Supabase Client operations helper)                   |
+|     +---> [db_history.py] (Supabase Client operations helper)                  |
 +----------------------------------------+---------------------------------------+
                                          |
                                          | Secure REST API Calls
                                          | (Auth Token / data payload)
                                          v
                   +----------------------------------------------+
-                  |               SUPABASE CLOUD                 |
+                  |                SUPABASE CLOUD                |
                   |  - Auth Service (Manage Users & Sign-ins)    |
                   |  - PostgreSQL Database (Conversations/Logs)  |
                   +----------------------------------------------+
