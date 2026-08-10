@@ -29,7 +29,7 @@ The system is organized around three layers:
 ```mermaid
 flowchart TD
     subgraph Browser ["USER BROWSER"]
-        UI["Streamlit UI<br/>(Forms, Chat, Sidebar)"]
+        UI["Streamlit UI<br/>"]
     end
 
     subgraph Server ["LOCAL BACKEND SERVER"]
