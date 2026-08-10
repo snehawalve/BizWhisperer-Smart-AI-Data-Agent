@@ -28,41 +28,47 @@ The system is organized around three layers:
 
 ```mermaid
 flowchart TD
-    %% Node Definitions
-    subgraph Layer1 ["1. FRONTEND LAYER"]
-        UI["Streamlit UI<br/>• User Prompts & Chat Interface<br/>• Authentication Views & Sidebar"]
+    %% Architecture Nodes
+    subgraph Browser ["🌐 USER BROWSER"]
+        UI["Streamlit UI<br/>(Forms, Chat, Sidebar)"]
     end
 
-    subgraph Layer2 ["2. APPLICATION CONTROLLER"]
-        APP["⚙️ Core Controller (app.py)<br/>• Session State Management<br/>• Routes requests to Agent or DB Sync"]
-    end
-
-    subgraph Layer3 ["3. AI & TOOLING ENGINE"]
-        AGENT["🤖 LangChain Agent Executor<br/>(Gemini LLM Chat)"]
-        TOOLS["📄 Document Search Tool<br/>(search_company_documents)"]
-        SQL_TOOL["Relational Query Tool<br/>(SQLDatabaseToolkit)"]
+    subgraph Server ["🖥️ LOCAL BACKEND SERVER"]
+        APP["app.py<br/>(Streamlit Controller & State)"]
+        AGENT["agent.py<br/>(LangChain Executor)"]
         
-        VECTOR[("Vector Store<br/>(ChromaDB)")]
-        SQLITE[("Enterprise DB<br/>(SQLite)")]
+        subgraph Tools ["Tools & Data Engine"]
+            TOOLS["tools.py"]
+            CHROMA[("vector_store/<br/>(ChromaDB)")]
+            SQL_TOOL["SQLDatabaseToolkit"]
+            SQLITE[("enterprise.db<br/>(SQLite)")]
+        end
+        
+        DB_HIST["db_history.py<br/>(Supabase Helper)"]
     end
 
-    subgraph Layer4 ["4. CLOUD & PERSISTENCE"]
-        DB_HIST["⚡ Auth & Sync Helper<br/>(db_history.py)"]
-        SUPA["☁️ Supabase Cloud Services<br/>• User Auth (Tokens)<br/>• Conversation Logs (PostgreSQL)"]
+    subgraph External ["☁️ EXTERNAL SERVICES"]
+        LLM["🤖 Gemini LLM API"]
+        SUPA[("☁️ Supabase Cloud<br/>(Auth & Postgres Logs)")]
     end
 
-    %% Data Flow & Execution Order
-    UI -->|"① Sends User Query & Credentials"| APP
-    APP -->|"② Validates Session & Forwards Prompt"| AGENT
+    %% Data Flow Execution Order
+    UI -->|"① Enters Prompt"| APP
+    APP -->|"② Registers Handler & Inits Agent"| AGENT
+    AGENT <-->|"③ Sends Context / Returns Plan"| LLM
     
-    AGENT -->|"③ RAG Search (Unstructured Docs)"| TOOLS --> VECTOR
-    AGENT -->|"④ Text-to-SQL (Structured Data)"| SQL_TOOL --> SQLITE
+    AGENT -->|"④ Structured Query (SQL)"| SQL_TOOL
+    SQL_TOOL <-->|"Runs SELECT"| SQLITE
     
-    AGENT -->|"⑤ Formulates Final Answer"| APP
-    APP -->|"⑥ Renders UI Response"| UI
+    AGENT -->|"⑤ Unstructured RAG Search"| TOOLS
+    TOOLS <-->|"Vector Similarity Search"| CHROMA
     
-    APP -->|"⑦ Syncs Chat History & Auth Token"| DB_HIST
-    DB_HIST -->|"⑧ REST API Call"| SUPA
+    AGENT -->|"⑥ Compiles Final Answer"| LLM
+    AGENT -->|"Renders Response"| APP
+    APP -->|"Displays Output"| UI
+    
+    APP -->|"⑦ Async Cloud Sync"| DB_HIST
+    DB_HIST -->|"REST API Call"| SUPA
 ```
 
 ## Request and Data Flow
